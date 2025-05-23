@@ -1,7 +1,6 @@
 package com.krystalink.dto;
 
 
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,7 +12,6 @@ import java.time.LocalDate;
 @Setter
 public class GlobalSearchRequest {
 
-    @NotBlank(message = "Phone number is required")
     @Pattern(regexp = "^[0-9]{8}$", message = "Phone number must be exactly 8 digits")
     private String phoneNumber;
 

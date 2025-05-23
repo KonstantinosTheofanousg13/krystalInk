@@ -89,11 +89,15 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public List<ClientWithAppointmentsResponse> globalSearch(GlobalSearchRequest request) {
         log.debug("globalSearch() started with request: {}", request);
-        Client clientProbe = builderHelper.buildClientFromRequest(request);
-        Appointment appointmentProbe = builderHelper.buildAppointmentFromRequest(request);
 
-        Example<Client> clientExample = Example.of(clientProbe, builderHelper.buildClientMatcher());
-        Example<Appointment> appointmentExample = Example.of(appointmentProbe, builderHelper.buildAppointmentMatcher());
+        if(validateGlobalSearchRequest(request))
+            return List.of();
+
+        Client clientFromRequest = builderHelper.buildClientFromRequest(request);
+        Appointment appointmentFromRequest = builderHelper.buildAppointmentFromRequest(request);
+
+        Example<Client> clientExample = Example.of(clientFromRequest, builderHelper.buildClientMatcher());
+        Example<Appointment> appointmentExample = Example.of(appointmentFromRequest, builderHelper.buildAppointmentMatcher());
 
         List<Client> clients = clientRepository.findAll(clientExample);
         List<Appointment> appointments = appointmentRepository.findAll(appointmentExample);
@@ -108,5 +112,12 @@ public class ClientServiceImpl implements ClientService {
 
         log.debug("globalSearch() finished with {} matching clients", result.size());
         return result;
+    }
+
+    private Boolean validateGlobalSearchRequest(GlobalSearchRequest request) {
+        return (request.getPhoneNumber() == null || request.getPhoneNumber().isBlank())
+                && request.getAppointmentDate() == null
+                && (request.getServiceName() == null || request.getServiceName().isBlank())
+                && (request.getFullName() == null || request.getFullName().isBlank());
     }
 }

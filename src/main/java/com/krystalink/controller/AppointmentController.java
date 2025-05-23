@@ -1,9 +1,11 @@
 package com.krystalink.controller;
 
-import com.krystalink.service.AppointmentService;
+import com.krystalink.dto.AppointmentEditRequest;
 import com.krystalink.dto.AppointmentRequest;
 import com.krystalink.dto.AppointmentResponse;
+import com.krystalink.service.AppointmentService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/appointment")
+@RequestMapping("api/appointment")
 @RequiredArgsConstructor
 public class AppointmentController {
 
@@ -19,8 +21,8 @@ public class AppointmentController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<AppointmentResponse> createAppointment(@Valid @RequestBody AppointmentRequest appointmentRequest) {
-        AppointmentResponse created = appointmentService.createAppointment(appointmentRequest);
+    public ResponseEntity<AppointmentResponse> createAppointment(@Valid @RequestBody AppointmentRequest appointmentCreateRequest) {
+        AppointmentResponse created = appointmentService.createAppointment(appointmentCreateRequest);
         return ResponseEntity.ok(created);
     }
 
@@ -30,9 +32,10 @@ public class AppointmentController {
         return ResponseEntity.ok(response);
     }
 
-    //TODO::Create a PUT api to edit the appointment ( Service , Date , StartTime , EndTime )
-    //TODO::Create a Delete api to delete an appointment.
-    //TODO::Unit Tests for all the Scenarios
-
+    @PatchMapping("/edit/{appointmentId}")
+    public ResponseEntity<AppointmentResponse> editAppointment(@PathVariable @NotNull @Valid Long appointmentId, @Valid @RequestBody AppointmentEditRequest appointmentEditRequest) {
+        AppointmentResponse updatedAppointment = appointmentService.updateAppointment(appointmentId, appointmentEditRequest);
+        return ResponseEntity.ok(updatedAppointment);
+    }
 
 }

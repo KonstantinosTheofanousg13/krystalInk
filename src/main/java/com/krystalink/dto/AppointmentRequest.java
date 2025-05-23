@@ -14,6 +14,7 @@ import java.time.LocalTime;
 @AllArgsConstructor
 @Getter
 @Setter
+@Builder
 public class AppointmentRequest {
 
     private Long id;

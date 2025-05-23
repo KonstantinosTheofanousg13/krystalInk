@@ -37,4 +37,15 @@ public class Appointment {
     private LocalTime endTime;
 
 
+    @Override
+    public String toString() {
+        return "Appointment{" +
+                "id=" + id +
+                ", clientId=" + (client != null ? client.getId() : null) +
+                ", serviceName='" + serviceName + '\'' +
+                ", date=" + date +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
+                '}';
+    }
 }

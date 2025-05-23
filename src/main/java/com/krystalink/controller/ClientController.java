@@ -1,19 +1,18 @@
 package com.krystalink.controller;
 
-import com.krystalink.dto.ClientWithAppointmentsResponse;
-import com.krystalink.dto.GlobalSearchRequest;
-import com.krystalink.service.ClientService;
 import com.krystalink.dto.ClientRequest;
 import com.krystalink.dto.ClientResponse;
-import com.krystalink.helper.PhoneNumberQuery;
+import com.krystalink.dto.ClientWithAppointmentsResponse;
+import com.krystalink.dto.GlobalSearchRequest;
 import com.krystalink.exception.ClientNotFoundException;
 import com.krystalink.exception.DuplicateClientException;
+import com.krystalink.helper.PhoneNumberQuery;
+import com.krystalink.service.ClientService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -53,10 +52,5 @@ public class ClientController {
         return ResponseEntity.ok(response);
 
     }
-
-    //TODO::Create a new Controller for the globalSearch to be more clean
-    //TODO::Create a Delete api to delete a client
-    //TODO::Unit Tests for all the scenarios
-
 
 }

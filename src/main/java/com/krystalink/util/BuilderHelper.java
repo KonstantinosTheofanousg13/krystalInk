@@ -3,6 +3,7 @@ package com.krystalink.util;
 import com.krystalink.dto.GlobalSearchRequest;
 import com.krystalink.model.Appointment;
 import com.krystalink.model.Client;
+import jakarta.validation.Validator;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.data.domain.ExampleMatcher;
@@ -17,7 +18,10 @@ import static com.krystalink.constants.Constants.*;
 @Getter
 public class BuilderHelper {
 
-    public record NameParts(String firstName, String lastName) {}
+    public record NameParts(String firstName, String lastName) {
+    }
+
+    private final Validator validator;
 
 
     public ExampleMatcher buildClientMatcher() {
@@ -80,6 +84,5 @@ public class BuilderHelper {
 
         return new NameParts(firstName, lastName);
     }
-
 
 }

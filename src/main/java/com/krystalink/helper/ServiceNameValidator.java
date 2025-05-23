@@ -8,11 +8,13 @@ public class ServiceNameValidator implements ConstraintValidator<ValidServiceNam
 
     @Override
     public boolean isValid(String serviceName, ConstraintValidatorContext context) {
-        try {
-            ServiceEnum.valueOf(serviceName);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
+        if (serviceName == null) return true;
+
+        for (ServiceEnum service : ServiceEnum.values()) {
+            if (service.name().equalsIgnoreCase(serviceName)) {
+                return true;
+            }
         }
+        return false;
     }
 }

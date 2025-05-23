@@ -1,7 +1,9 @@
 package com.krystalink.service.impl;
 
+import com.krystalink.dto.AppointmentEditRequest;
 import com.krystalink.dto.AppointmentRequest;
 import com.krystalink.dto.AppointmentResponse;
+import com.krystalink.exception.AppointmentNotFoundException;
 import com.krystalink.exception.ClientNotFoundException;
 import com.krystalink.exception.DuplicateAppointmentException;
 import com.krystalink.model.Appointment;
@@ -14,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,14 +31,14 @@ public class AppointmentServiceImpl implements AppointmentService {
     private final EntityDtoMapper entityDtoMapper;
 
     @Override
-    public AppointmentResponse createAppointment(AppointmentRequest appointmentRequest) {
-        log.debug("createAppointment() started... {}", appointmentRequest);
+    public AppointmentResponse createAppointment(AppointmentRequest request) {
+        log.debug("createAppointment() started... {}", request);
 
-        Client client = getClientByPhoneNumber(appointmentRequest.getPhoneNumber());
-        validateTimeRange(appointmentRequest);
-        validateDuplicateTime(appointmentRequest);
+        Client client = getClientByPhoneNumber(request.getPhoneNumber());
+        validateTimeRange(request);
+        validateDuplicateTime(request.getDate(), request.getStartTime(), request.getEndTime());
 
-        Appointment appointment = entityDtoMapper.toAppointment(appointmentRequest, client);
+        Appointment appointment = entityDtoMapper.toAppointment(request, client);
         Appointment savedAppointment = appointmentRepository.save(appointment);
 
         log.debug("createAppointment() completed... {}", savedAppointment);
@@ -49,16 +53,48 @@ public class AppointmentServiceImpl implements AppointmentService {
                 .toList();
     }
 
-    private void validateDuplicateTime(AppointmentRequest appointmentRequest) {
-        appointmentRepository.findConflictingAppointments(
-                appointmentRequest.getDate(),
-                appointmentRequest.getStartTime(),
-                appointmentRequest.getEndTime()).ifPresent(a -> {
-            throw new DuplicateAppointmentException(appointmentRequest);});
+    @Override
+    public AppointmentResponse updateAppointment(Long appointmentId, AppointmentEditRequest request) {
+        log.debug("updateAppointment() started for appointmentId={} with {}", appointmentId, request);
+
+        Appointment appointment = fetchAppointmentById(appointmentId);
+        validateDuplicateTime(request.getDate(), request.getStartTime(), request.getEndTime());
+        setAppointmentWithRequestInput(request, appointment);
+
+        Appointment saved = appointmentRepository.save(appointment);
+        return entityDtoMapper.toAppointmentResponse(saved);
     }
 
-    private void validateTimeRange(AppointmentRequest appointmentRequest) {
-        if (!appointmentRequest.isValidTimeRange())
+    private static void setAppointmentWithRequestInput(AppointmentEditRequest request, Appointment appointment) {
+        if (request.getDate() != null) {
+            appointment.setDate(request.getDate());
+        }
+        if (request.getStartTime() != null) {
+            appointment.setStartTime(request.getStartTime());
+        }
+        if (request.getEndTime() != null) {
+            appointment.setEndTime(request.getEndTime());
+        }
+        if (request.getServiceName() != null) {
+            appointment.setServiceName(request.getServiceName());
+        }
+    }
+
+    private Appointment fetchAppointmentById(Long appointmentId) {
+        return appointmentRepository.findById(appointmentId)
+                .orElseThrow(() -> new AppointmentNotFoundException(appointmentId));
+    }
+
+
+    private void validateDuplicateTime(LocalDate date, LocalTime startTime, LocalTime endTime) {
+        appointmentRepository.findConflictingAppointments(date, startTime, endTime)
+                .ifPresent(a -> {
+                    throw new DuplicateAppointmentException();
+                });
+    }
+
+    private void validateTimeRange(AppointmentRequest appointmentCreateRequest) {
+        if (!appointmentCreateRequest.isValidTimeRange())
             throw new IllegalArgumentException("End time must be after start time");
     }
 
